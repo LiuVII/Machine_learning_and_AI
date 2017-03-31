@@ -86,11 +86,33 @@ for i in range(TRAIN_STEPS):
 	step_lst.append(i)
 	if i % 200 == 0 :
 		print("loss %f" % i_loss)
+
+prediction = tf.equal(tf.argmax(y, 1), tf.argmax(h, 1))
+accuracy = tf.reduce_mean(tf.cast(prediction, tf.float32))
+print("Accuracy %f" % sess.run(accuracy, feed_dict={x: mnist.test.images, y: mnist.test.labels}))
 with open("fc_loss.csv",'wb') as resultFile:
 	wr = csv.writer(resultFile)
 	wr.writerows([step_lst, loss_lst])
-plt.plot(step_lst, loss_lst)
-plt.show()
-prediction = tf.equal(tf.argmax(y, 1), tf.argmax(h, 1))
-accuracy = tf.reduce_mean(tf.cast(prediction, tf.float32))
-print("Accuracy %f" % sess.run(accuracy, feed_dict={x: mnist.train.images, y: mnist.train.labels}))
+
+
+# plt.plot(step_lst, loss_lst)
+# plt.show()
+while True:
+	t_x, t_y = mnist.test.next_batch(1)
+	label = t_y
+
+	# The rest of columns are pixels
+	pixels = t_x
+	# Make those columns into a array of 8-bits pixels
+	# This array will be of 1D with length 784
+	# The pixel intensity values are integers from 0 to 255
+	pixels = np.array(pixels, dtype='uint8')
+	# Reshape the array into 28 x 28 array (2-dimensional array)
+	pixels = pixels.reshape((28, 28))
+	# Plot
+	plt.title('Label is {label}'.format(label=label))
+	plt.imshow(pixels, cmap='gray')
+	plt.show()
+	inp = raw_input()
+	if inp == "q":
+		break
